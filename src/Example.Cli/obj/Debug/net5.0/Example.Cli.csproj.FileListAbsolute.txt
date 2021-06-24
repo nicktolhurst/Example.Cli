@@ -1,0 +1,16 @@
+Z:\CLI\src\Example.Cli\bin\Debug\net5.0\example.exe
+Z:\CLI\src\Example.Cli\bin\Debug\net5.0\example.deps.json
+Z:\CLI\src\Example.Cli\bin\Debug\net5.0\example.runtimeconfig.json
+Z:\CLI\src\Example.Cli\bin\Debug\net5.0\example.runtimeconfig.dev.json
+Z:\CLI\src\Example.Cli\bin\Debug\net5.0\example.dll
+Z:\CLI\src\Example.Cli\bin\Debug\net5.0\ref\example.dll
+Z:\CLI\src\Example.Cli\bin\Debug\net5.0\example.pdb
+Z:\CLI\src\Example.Cli\obj\Debug\net5.0\Example.Cli.csproj.AssemblyReference.cache
+Z:\CLI\src\Example.Cli\obj\Debug\net5.0\Example.Cli.GeneratedMSBuildEditorConfig.editorconfig
+Z:\CLI\src\Example.Cli\obj\Debug\net5.0\Example.Cli.AssemblyInfoInputs.cache
+Z:\CLI\src\Example.Cli\obj\Debug\net5.0\Example.Cli.AssemblyInfo.cs
+Z:\CLI\src\Example.Cli\obj\Debug\net5.0\Example.Cli.csproj.CoreCompileInputs.cache
+Z:\CLI\src\Example.Cli\obj\Debug\net5.0\example.dll
+Z:\CLI\src\Example.Cli\obj\Debug\net5.0\ref\example.dll
+Z:\CLI\src\Example.Cli\obj\Debug\net5.0\example.pdb
+Z:\CLI\src\Example.Cli\obj\Debug\net5.0\Example.Cli.genruntimeconfig.cache
