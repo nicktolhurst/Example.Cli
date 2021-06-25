@@ -1,43 +1,38 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using Example.Cli.Args;
-using Example.Cli.Commands;
+﻿using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Example.Cli.Helpers;
 
 namespace Example.Cli
 {
-    class Program
+    internal static class Program
     {
-        static int Main(string[] args) => new Program().Run(args);
-
-        private int Run(string[] args)
+        public static async Task<int> Main(string[] args)
         {
-            try
-            {
-                switch (ArgsParser.TryParse(args))
-                {
-                    case Args.LintArgs a when a.CommandName == Constants.Commands.Lint:         // example lint file.rst
-                        return new LintCommand(a).Run(); 
+            ServiceProvider serviceProvider = BuildServiceProvider();
+            Parser parser = BuildParser(serviceProvider);
 
-                    case Args.BuildArgs a when a.CommandName == Constants.Commands.Build:           // example run file.rst
-                        return new BuildCommand(a).Run(); 
-
-                    case Args.DecompileArgs a when a.CommandName == Constants.Commands.Decompile:   // example version
-                        return new DecompileCommand(a).Run(); 
-                                                                                                // Root command and top level arguments
-                    case Args.RootArgs a when a.CommandName == null ||                          // example 
-                        new Regex(Constants.Args.VersionRgx).IsMatch(args[0]) ||                // example --version || example -v
-                        new Regex(Constants.Args.HelpRgx).IsMatch(args[0]):                     // example --help || example -h
-                            return new RootCommand(a).Run();
-
-                    default:
-                        Console.Error.WriteLine($"Unrecognised args: '{String.Join("', '",args)}'");
-                        return 1;
-                }
-            }
-            catch (Exception)
-            {
-                return 1;
-            }
+            return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
+
+        private static Parser BuildParser(ServiceProvider serviceProvider)
+        {
+            var commandLineBuilder = new CommandLineBuilder();
+
+            foreach (Command command in serviceProvider.GetServices<Command>())
+            {
+                commandLineBuilder.AddCommand(command);
+            }
+
+            return commandLineBuilder.UseDefaults().Build();
+        }
+
+        private static ServiceProvider BuildServiceProvider() 
+            => new ServiceCollection()
+                .AddCliCommands()
+                .AddCliCommandConfig()
+                .BuildServiceProvider();
     }
 }

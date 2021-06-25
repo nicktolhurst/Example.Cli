@@ -1,26 +1,48 @@
-using System;
-using Example.Cli.Args;
+using System.CommandLine;
+using System.IO;
+using Example.Cli.Helpers;
+using Example.Cli.Config;
+using Example.Cli.Services;
 
-namespace Example.Cli.Commands
+namespace Example.Cli.Commands 
 {
-    public class BuildCommand : CommandBase
+    public class BuildCommand : Command
     {
-        private readonly BuildArgs _args;
-        public BuildCommand(BuildArgs args) : base(args)
+        public BuildCommand(BuildConfig config) : base(config.CommandName, config.DescriptionText)
         {
-            _args = args;
+            config.Options.ForEach(opt => this.AddOption(opt));
+            config.Arguments.ForEach(arg => this.AddArgument(arg));
+
+            this.WithHandler(nameof(HandleCommand));
         }
 
-        protected override int ToFile(string path)
+        private static int HandleCommand(bool stdout, FileInfo outputFile, DirectoryInfo outputDir, bool noSummary, FileInfo file)
         {
-            Console.WriteLine($"\n To file logic... \n\tPATH: {path}");
+            try
+            {
+                if (!file.Exists)
+                {
+                    throw new FileNotFoundException($"Could not find file: {file.FullName}");
+                }
 
-            return 0;
-        }
-
-        protected override int ToStdout()
-        {
-            Console.WriteLine($"\n To stdout logic... \n\t ......");
+                if (stdout)
+                {
+                    return new BuildService().Run(noSummary, file);
+                }
+                else if (outputFile is not null)
+                {
+                    return new BuildService().Run(outputFile, noSummary, file);
+                }
+                else if (outputDir is not null)
+                {
+                    return new BuildService().Run(outputDir, noSummary, file);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                System.Console.WriteLine(ex);
+                return 1;
+            }
 
             return 0;
         }
