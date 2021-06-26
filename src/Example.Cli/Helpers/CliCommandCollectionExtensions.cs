@@ -10,7 +10,7 @@ namespace Example.Cli.Helpers
 {
 
     /// <summary>
-    /// Contains the collection extensions for adding the CLI commands.
+    /// Contains the collection extensions for adding the CLI commands and configuration of those commands.
     /// </summary>
     public static class CliCommandCollectionExtensions
     {
@@ -22,8 +22,9 @@ namespace Example.Cli.Helpers
         /// <returns>The service collection, for chaining.</returns>
         /// <remarks>
         /// We are using convention to register the commands; essentially everything in the same namespace as the
-        /// <see cref="BuildCommand"/> and that implements <c>Command</c> will be registered. If any commands are
-        /// added in other namespaces, this method will need to be modified/extended to deal with that.
+        /// <see cref="BuildCommand"/> and that implements <c>Command</c> will be registered. 
+        ///
+        /// See https://endjin.com/blog/2020/09/simple-pattern-for-using-system-commandline-with-dependency-injection for reference.
         /// </remarks>
         public static IServiceCollection AddCliCommands(this IServiceCollection services)
         {
@@ -43,6 +44,18 @@ namespace Example.Cli.Helpers
             return services;
         }
 
+        /// <summary>
+        /// Adds the corresponding configuration, used by the commands, to the DI container. These are resolved when the commands are registered with the
+        /// <c>CommandLineBuilder</c>.
+        /// </summary>
+        /// <param name="services">The service collection to add to.</param>
+        /// <returns>The service collection, for chaining.</returns>
+        /// <remarks>
+        /// We are using convention to register these configurations; essentially everything in the same namespace as the
+        /// <see cref="BuildConfig"/> and that implements <c>IConfig</c> will be registered. 
+        ///
+        /// See https://endjin.com/blog/2020/09/simple-pattern-for-using-system-commandline-with-dependency-injection for reference.
+        /// </remarks>
         public static IServiceCollection AddCliCommandConfig(this IServiceCollection services)
         {
             Type grabConfigType = typeof(BuildConfig);
