@@ -9,11 +9,13 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/Rusty.Cli/bin/Debug/net5.0/rusty.dll",
+            "program": "${workspaceFolder}/src/Example.Cli/bin/Debug/net5.0/example.dll",
             "args": [
-                
+                "decompile",
+                "--stdout",
+                "main.bicep"
             ],
-            "cwd": "${workspaceFolder}/src/Rusty.Cli",
+            "cwd": "z:/.temp/",
             "console": "internalConsole",
             "stopAtEntry": false
         },

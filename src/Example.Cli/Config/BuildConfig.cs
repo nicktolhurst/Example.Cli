@@ -38,11 +38,9 @@ namespace Example.Cli.Config
 
             this.Arguments = new List<Argument>()
             {
-                new Argument
+                new Argument<FileInfo>("file")
                 {
-                    Name = "file",
                     Description = "The file to build.",
-                    ArgumentType = typeof(FileInfo)
                 }
             };
         }

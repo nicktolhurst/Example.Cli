@@ -5,6 +5,8 @@ using System.Linq;
 using Example.Cli.Commands;
 using Example.Cli.Config;
 using Microsoft.Extensions.DependencyInjection;
+using System.CommandLine.Invocation;
+using System.CommandLine.Builder;
 
 namespace Example.Cli.Helpers
 {
@@ -12,7 +14,7 @@ namespace Example.Cli.Helpers
     /// <summary>
     /// Contains the collection extensions for adding the CLI commands and configuration of those commands.
     /// </summary>
-    public static class CliCommandCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         /// <summary>
         /// Adds the CLI commands to the DI container. These are resolved when the commands are registered with the
@@ -64,11 +66,29 @@ namespace Example.Cli.Helpers
             IEnumerable<Type> configs = grabConfigType
                 .Assembly
                 .GetExportedTypes()
-                .Where(x => x.Namespace == grabConfigType.Namespace && x.GetInterfaces().Contains(typeof(IConfig)));
+                .Where(x => x.Namespace == grabConfigType.Namespace && x.GetInterfaces().Contains(configType));
 
             foreach (Type config in configs)
             {
-                services.AddScoped(config);
+                services.AddSingleton(config);
+            }
+
+            return services;
+        }
+
+        public static IServiceCollection AddCommandLineHandlers(this IServiceCollection services)
+        {
+            Type grabConfigType = typeof(BuildCommandHandler);
+            Type configType = typeof(ICommandHandler);
+
+            IEnumerable<Type> configs = grabConfigType
+                .Assembly
+                .GetExportedTypes()
+                .Where(x => x.Namespace == grabConfigType.Namespace && x.GetInterfaces().Contains(configType));
+
+            foreach (Type config in configs)
+            {
+                services.AddSingleton(config);
             }
 
             return services;

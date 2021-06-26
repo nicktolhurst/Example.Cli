@@ -1,12 +1,18 @@
 using System;
 using System.IO;
+using Microsoft.Extensions.Logging;
 
 namespace Example.Cli.Services 
 {
     public class DecompileService
     {
-        public DecompileService()
+        private readonly ILogger logger;
+
+        public DecompileService(ILogger logger)
         {
+            this.logger = logger;
+
+            logger.LogError("Starting Decompile Service");
         }
 
         public int Run(FileInfo file)

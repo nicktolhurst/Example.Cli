@@ -1,38 +1,79 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Example.Cli.Helpers;
+using Example.Cli.Logging;
+using System.CommandLine.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace Example.Cli
 {
-    internal static class Program
+    internal class Program
     {
+        private readonly RunContext runContext;
+        public Program(RunContext runContext)
+        {
+            this.runContext = runContext;
+        }
+
         public static async Task<int> Main(string[] args)
         {
-            ServiceProvider serviceProvider = BuildServiceProvider();
-            Parser parser = BuildParser(serviceProvider);
+            RunContext runContext = new RunContext();
+
+            var program = new Program(runContext);
+
+            return await program.Run(args);
+        }
+
+        public async Task<int> Run(string[] args)
+        {
+            ServiceProvider serviceProvider = ConfigureServices();
+
+            ILoggerProvider loggerProvider = GetLoggerProvider();
+
+            Parser parser = BuildCommandLine(serviceProvider, loggerProvider);
 
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        private static Parser BuildParser(ServiceProvider serviceProvider)
+        private Parser BuildCommandLine(ServiceProvider serviceProvider, ILoggerProvider loggerProvider)
         {
-            var commandLineBuilder = new CommandLineBuilder();
+            // Configure the commandline
+            var commandLineBuilder = new CommandLineBuilder()
+                .UseDefaults()
+                .UseMiddleware(context => context.BindingContext.AddService(_ => serviceProvider))
+                .UseHost(host => host
+                    .ConfigureServices(services => services
+                        .AddSingleton(runContext)
+                        .AddCommandLineHandlers()));
 
-            foreach (Command command in serviceProvider.GetServices<Command>())
+            // Add the commands from the DI container
+            foreach (var command in serviceProvider.GetServices<Command>())
             {
                 commandLineBuilder.AddCommand(command);
             }
 
-            return commandLineBuilder.UseDefaults().Build();
+            return commandLineBuilder.Build();
         }
 
-        private static ServiceProvider BuildServiceProvider() 
-            => new ServiceCollection()
+        private ILoggerProvider GetLoggerProvider()
+        {
+            return new ExampleLoggerProvider(new ExampleLoggerOptions(true, ConsoleColor.Red, ConsoleColor.DarkYellow, this.runContext.ErrorWriter));
+        }
+
+        private ServiceProvider ConfigureServices()
+        {
+            return new ServiceCollection()
                 .AddCliCommands()
                 .AddCliCommandConfig()
+                .AddLogging(configure => configure
+                    .ClearProviders()
+                    .AddProvider(GetLoggerProvider()))
                 .BuildServiceProvider();
+        }
     }
 }

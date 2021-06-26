@@ -3,7 +3,7 @@ using System.CommandLine;
 
 namespace Example.Cli.Config 
 {
-    public interface IConfig 
+    public interface IConfig
     {
         public string CommandName { get; set; }
         public string DescriptionText { get; set; }
