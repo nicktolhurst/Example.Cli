@@ -12,8 +12,9 @@
             "program": "${workspaceFolder}/src/Example.Cli/bin/Debug/net5.0/example.dll",
             "args": [
                 "build",
+                "--stdout",
                 "--output-file",
-                "main.json",
+                "main.test",
                 "main.bicep"
             ],
             "cwd": "z:/.temp/",

@@ -1,11 +1,11 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Linq;
 using System.Reflection;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 using Example.Cli.Config;
 
@@ -20,10 +20,6 @@ namespace Example.Cli.Helpers
         {
             command.Handler = CommandHandler.Create<IHost, InvocationContext>((host, invocation) =>
             {
-                var logger = host.Services.GetService<ILogger<T>>();
-
-                logger.LogInformation($"Executing service: {nameof(T)}");
-
                 return host.Services.GetRequiredService<T>().InvokeAsync(invocation);
             });
 
@@ -58,7 +54,15 @@ namespace Example.Cli.Helpers
         // Hacky workaround for ValueForArgument(IArgument) returning null..
         public static T GetValueFor<T>(this InvocationContext context, Argument<T> argument)
         {
-            return context.ParseResult.ValueForOption<T>(argument.Name);
+            return context.ParseResult.ValueForArgument<T>(argument.Name);
+        }
+
+        // Adds extension method for validator for method chaining.
+        public static Command ValidateWith(this Command command, ValidateSymbol<CommandResult> validate)
+        {
+            command.AddValidator(validate);
+
+            return command;
         }
     }
 }

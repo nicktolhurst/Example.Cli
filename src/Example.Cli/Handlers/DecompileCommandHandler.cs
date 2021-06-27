@@ -24,52 +24,22 @@ namespace Example.Cli.Handlers
 
         public Task<int> InvokeAsync(InvocationContext context)
         {
-            bool isStdOut = context.GetValueFor(config.Stdout);
-            FileInfo outputFile = context.GetValueFor(config.OutputFile);
-            DirectoryInfo outputDirectory = context.GetValueFor(config.OutputDirectory);
-
-            if(outputFile is not null)
-            {
-                if(outputFile.Directory.Exists)
-                {
-                    if(outputFile.Exists)
-                    {
-                        runContext.ErrorWriter.WriteLine($"File exists: {outputFile.FullName}. Let's not overwrite it!");
-                        return Task.FromResult(1);
-                    }
-
-                    WriteFile(outputFile);
-                }
-            }
-            else if(outputDirectory is not null)
-            {
-                WriteFile(outputDirectory);
-            }
-            else if (isStdOut)
-            {
-                PrintStdout();
-            }
-            else
-            {
-                runContext.OutputWriter.WriteLine($"Else....");
-            }
-
-            return Task.FromResult(0);
+            throw new System.NotImplementedException();
         }
 
         private void PrintStdout()
         {
-            runContext.OutputWriter.WriteLine($"Printing results to stdout...");
+            throw new System.NotImplementedException();
         }
 
         private void WriteFile(FileInfo file)
         {
-            runContext.OutputWriter.WriteLine($"Printing results to file '{file.FullName}'...");
+            throw new System.NotImplementedException();
         }
 
         private void WriteFile(DirectoryInfo directoryInfo)
         {
-            runContext.OutputWriter.WriteLine($"Printing results to directory '{directoryInfo.FullName}'...");
+            throw new System.NotImplementedException();
         }
     }
 }

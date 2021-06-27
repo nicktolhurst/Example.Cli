@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using System.CommandLine;
+using System.IO;
 
 namespace Example.Cli.Config 
 {
@@ -7,5 +7,7 @@ namespace Example.Cli.Config
     {
         public string CommandName { get;  }
         public string DescriptionText { get;  }
+
+        public Argument<FileInfo> InputFile { get; }
     }
 }

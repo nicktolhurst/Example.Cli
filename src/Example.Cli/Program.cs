@@ -48,6 +48,9 @@ namespace Example.Cli
                 .UseMiddleware(context => context.BindingContext.AddService(_ => serviceProvider))
                 .UseHost(host => host
                     .ConfigureServices(services => services
+                        .AddLogging(configure => configure
+                            .SetMinimumLevel(LogLevel.Warning)
+                            .AddProvider(loggerProvider))
                         .AddCliCommandConfig()
                         .AddSingleton(runContext)
                         .AddCommandLineHandlers()));
@@ -71,9 +74,6 @@ namespace Example.Cli
             return new ServiceCollection()
                 .AddCliCommandConfig()
                 .AddCliCommands()
-                .AddLogging(configure => configure
-                    .ClearProviders()
-                    .AddProvider(GetLoggerProvider()))
                 .BuildServiceProvider();
         }
     }
