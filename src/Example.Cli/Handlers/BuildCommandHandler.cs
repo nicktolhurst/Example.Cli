@@ -1,5 +1,4 @@
 using System.CommandLine.Invocation;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -14,7 +13,6 @@ namespace Example.Cli.Handlers
     public class BuildCommandHandler : ICommandHandler
     {
         private readonly ILogger<BuildCommandHandler> logger;
-
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly BuildConfig config;
         private readonly RunContext runContext;
@@ -44,7 +42,7 @@ namespace Example.Cli.Handlers
             {
                 WriteFile(inputUri,outputDirectory);
             }
-            else if (outputDirectory is not null)
+            else if (isStdOut)
             {
                 PrintStdout(inputUri);
             }
@@ -68,7 +66,7 @@ namespace Example.Cli.Handlers
 
         private void PrintStdout(System.Uri inputUri)
         {
-            runContext.OutputWriter.WriteLine($"Printing to Stdout:\r\tinputUri : {inputUri}\r");
+            runContext.OutputWriter.WriteLine($"Printing to Stdout : inputUri={inputUri}");
 
             new FakeDiagnostics().Diagnostics.ForEach(diagnostic => 
                 diagnosticLogger.LogDiagnostic(inputUri, diagnostic)); 
@@ -76,7 +74,7 @@ namespace Example.Cli.Handlers
 
         private void WriteFile(System.Uri inputUri, FileInfo outputFile)
         {
-            runContext.OutputWriter.WriteLine($"Printing to Stdout:\r\tinputUri : {inputUri}\r\toutputFile : {outputFile}\r");
+            runContext.OutputWriter.WriteLine($"Writing to file : inputUri={inputUri} : outputFile={outputFile}");
 
             new FakeDiagnostics().Diagnostics.ForEach(diagnostic => 
                 diagnosticLogger.LogDiagnostic(inputUri, diagnostic)); 
@@ -84,7 +82,7 @@ namespace Example.Cli.Handlers
 
         private void WriteFile(System.Uri inputUri, DirectoryInfo outputDirectory)
         {
-            runContext.OutputWriter.WriteLine($"Printing to Stdout:\r\tinputUri : {inputUri}\r\toutputDirectory : {outputDirectory}\r");
+            runContext.OutputWriter.WriteLine($"Writing to directory : inputUrl={inputUri} : outputDirectory={outputDirectory}");
 
             new FakeDiagnostics().Diagnostics.ForEach(diagnostic => 
                 diagnosticLogger.LogDiagnostic(inputUri, diagnostic)); 

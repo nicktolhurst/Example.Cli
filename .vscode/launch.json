@@ -12,7 +12,6 @@
             "program": "${workspaceFolder}/src/Example.Cli/bin/Debug/net5.0/example.dll",
             "args": [
                 "build",
-                "--stdout",
                 "--output-file",
                 "main.test",
                 "main.bicep"
