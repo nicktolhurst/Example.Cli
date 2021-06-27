@@ -1,11 +1,13 @@
-using System.Threading.Tasks;
-using System.IO;
-using Microsoft.Extensions.Logging;
 using System.CommandLine.Invocation;
+using System.IO;
+using System.Threading.Tasks;
+
+using Microsoft.Extensions.Logging;
+
 using Example.Cli.Config;
 using Example.Cli.Helpers;
 
-namespace Example.Cli.Commands 
+namespace Example.Cli.Handlers 
 {
     public class DecompileHandler : ICommandHandler
     {

@@ -1,12 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
+using System.Collections.Generic;
+using System.CommandLine.Invocation;
 using System.Linq;
+
+using Microsoft.Extensions.DependencyInjection;
+
 using Example.Cli.Commands;
 using Example.Cli.Config;
-using Microsoft.Extensions.DependencyInjection;
-using System.CommandLine.Invocation;
-using System.CommandLine.Builder;
+using Example.Cli.Handlers;
 
 namespace Example.Cli.Helpers
 {

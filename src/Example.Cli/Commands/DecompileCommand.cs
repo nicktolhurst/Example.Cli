@@ -1,4 +1,6 @@
 using System.CommandLine;
+
+using Example.Cli.Handlers;
 using Example.Cli.Helpers;
 using Example.Cli.Config;
 
