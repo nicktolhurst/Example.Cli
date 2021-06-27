@@ -11,8 +11,9 @@
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/src/Example.Cli/bin/Debug/net5.0/example.dll",
             "args": [
-                "decompile",
-                "--stdout",
+                "build",
+                "--output-file",
+                "main.json",
                 "main.bicep"
             ],
             "cwd": "z:/.temp/",

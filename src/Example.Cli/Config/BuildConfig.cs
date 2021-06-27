@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.CommandLine;
 using System.IO;
 
@@ -8,46 +7,48 @@ namespace Example.Cli.Config
     {
         public BuildConfig()
         {
-            this.CommandName = "build";
+            CommandName = "build";
 
-            this.DescriptionText = "This is the descriptie text for the build command.";
+            DescriptionText = "This is the descriptive text for the build command.";
 
-            this.Options = new List<Option>()
+            InputFile = new Argument<FileInfo>("file")
             {
-                new Option<bool>("--stdout")
-                {
-                    Description = "Print out to the console.",
-                    IsRequired = false,
-                },
-                new Option<FileInfo>("--output-file")
-                {
-                    Description = "Write out to a specified file.",
-                    IsRequired = false,
-                },
-                new Option<DirectoryInfo>("--output-dir")
-                {
-                    Description = "Write out to a specified directory.",
-                    IsRequired = false,
-                },
-                new Option<bool>("--no-summary")
-                {
-                    Description = "Omits summary from stdout",
-                    IsRequired = false,
-                },
+                Description = "Input file..",
             };
 
-            this.Arguments = new List<Argument>()
+            Stdout = new Option<bool>("--stdout")
             {
-                new Argument<FileInfo>("file")
-                {
-                    Description = "The file to build.",
-                }
+                Name = "--stdout",
+                Description = "Print out to the console.",
+                IsRequired = false,
+            };
+
+            OutputFile = new Option<FileInfo>("--output-file")
+            {
+                Description = "Write out to a specified file.",
+                IsRequired = false,
+            };
+
+            OutputDirectory = new Option<DirectoryInfo>("--output-dir")
+            {
+                Description = "Write out to a specified directory.",
+                IsRequired = false,
+            };
+
+            NoSummary = new Option<bool>("--no-summary")
+            {
+                Name = "--no-summary",
+                Description = "Omits summary from stdout",
+                IsRequired = false,
             };
         }
 
-        public string CommandName { get; set; }
-        public string DescriptionText { get; set; }
-        public List<Option> Options { get; set; }
-        public List<Argument> Arguments { get; set; }
+        public string CommandName { get; }
+        public string DescriptionText { get; }
+        public Argument<FileInfo> InputFile { get; }
+        public Option<bool> Stdout { get; }
+        public Option<FileInfo> OutputFile { get; }
+        public Option<DirectoryInfo> OutputDirectory { get; }
+        public Option<bool> NoSummary { get; }
     }
 }

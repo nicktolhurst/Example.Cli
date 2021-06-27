@@ -8,10 +8,8 @@ namespace Example.Cli.Commands
     {
         public DecompileCommand(DecompileConfig config) : base(config.CommandName, config.DescriptionText)
         {
-            config.Options.ForEach(opt => this.AddOption(opt));
-            config.Arguments.ForEach(arg => this.AddArgument(arg));
-
-            this.HandledBy<DecompileCommandHandler>();
+            this.AddSymbolsFromConfig(config)
+                .HandleWith<BuildCommandHandler>();
         } 
     }
 }

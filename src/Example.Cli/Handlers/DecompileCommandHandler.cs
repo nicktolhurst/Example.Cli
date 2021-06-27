@@ -1,28 +1,73 @@
 using System.Threading.Tasks;
+using System.IO;
 using Microsoft.Extensions.Logging;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
+using Example.Cli.Config;
+using Example.Cli.Helpers;
 
 namespace Example.Cli.Commands 
 {
-    public class DecompileCommandHandler : ICommandHandler
+    public class DecompileHandler : ICommandHandler
     {
-        private readonly ILogger<DecompileCommandHandler> logger;
+        private readonly ILogger<BuildCommandHandler> logger;
+        private readonly DecompileConfig config;
+        private readonly RunContext runContext;
 
-        public DecompileCommandHandler(ILogger<DecompileCommandHandler> logger)
+        public DecompileHandler(ILogger<BuildCommandHandler> logger, DecompileConfig config, RunContext runContext)
         {
             this.logger = logger;
+            this.config = config;
+            this.runContext = runContext;
         } 
 
         public Task<int> InvokeAsync(InvocationContext context)
         {
-            context.Console.Out.WriteLine($"Invoking: build command!");
+            bool isStdOut = context.GetValueFor(config.Stdout);
+            FileInfo outputFile = context.GetValueFor(config.OutputFile);
+            DirectoryInfo outputDirectory = context.GetValueFor(config.OutputDirectory);
 
-            this.logger.LogInformation("Invoking: build command!");
+            if(outputFile is not null)
+            {
+                if(outputFile.Directory.Exists)
+                {
+                    if(outputFile.Exists)
+                    {
+                        runContext.ErrorWriter.WriteLine($"File exists: {outputFile.FullName}. Let's not overwrite it!");
+                        return Task.FromResult(1);
+                    }
 
-            context.Console.Out.Write($"{nameof(BuildCommandHandler)} was executed successfully!");
+                    WriteFile(outputFile);
+                }
+            }
+            else if(outputDirectory is not null)
+            {
+                WriteFile(outputDirectory);
+            }
+            else if (isStdOut)
+            {
+                PrintStdout();
+            }
+            else
+            {
+                runContext.OutputWriter.WriteLine($"Else....");
+            }
 
             return Task.FromResult(0);
+        }
+
+        private void PrintStdout()
+        {
+            runContext.OutputWriter.WriteLine($"Printing results to stdout...");
+        }
+
+        private void WriteFile(FileInfo file)
+        {
+            runContext.OutputWriter.WriteLine($"Printing results to file '{file.FullName}'...");
+        }
+
+        private void WriteFile(DirectoryInfo directoryInfo)
+        {
+            runContext.OutputWriter.WriteLine($"Printing results to directory '{directoryInfo.FullName}'...");
         }
     }
 }
