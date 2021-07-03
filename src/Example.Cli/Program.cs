@@ -1,43 +1,80 @@
 ﻿using System;
-using System.Text.RegularExpressions;
-using Example.Cli.Args;
-using Example.Cli.Commands;
+using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.Parsing;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Example.Cli.Helpers;
+using Example.Cli.Logging;
+using System.CommandLine.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace Example.Cli
 {
-    class Program
+    internal class Program
     {
-        static int Main(string[] args) => new Program().Run(args);
-
-        private int Run(string[] args)
+        private readonly RunContext runContext;
+        public Program(RunContext runContext)
         {
-            try
+            this.runContext = runContext;
+        }
+
+        public static async Task<int> Main(string[] args)
+        {
+            RunContext runContext = new RunContext();
+
+            var program = new Program(runContext);
+
+            return await program.Run(args);
+        }
+
+        public async Task<int> Run(string[] args)
+        {
+            ServiceProvider serviceProvider = ConfigureServices();
+
+            ILoggerProvider loggerProvider = GetLoggerProvider();
+
+            Parser parser = BuildCommandLine(serviceProvider, loggerProvider);
+
+            return await parser.InvokeAsync(args).ConfigureAwait(false);
+        }
+
+        private Parser BuildCommandLine(ServiceProvider serviceProvider, ILoggerProvider loggerProvider)
+        {
+            // Configure the commandline
+            var commandLineBuilder = new CommandLineBuilder()
+                .UseDefaults()
+                .UseMiddleware(context => context.BindingContext.AddService(_ => serviceProvider))
+                .UseHost(host => host
+                    .ConfigureServices(services => services
+                        .AddLogging(configure => configure
+                            .SetMinimumLevel(LogLevel.Warning)
+                            .AddProvider(loggerProvider))
+                        .AddCliCommandConfig()
+                        .AddSingleton(runContext)
+                        .AddCommandLineHandlers()));
+
+            // Add the commands from the DI container
+            foreach (var command in serviceProvider.GetServices<Command>())
             {
-                switch (ArgsParser.TryParse(args))
-                {
-                    case Args.LintArgs a when a.CommandName == Constants.Commands.Lint:         // example lint file.rst
-                        return new LintCommand(a).Run(); 
-
-                    case Args.BuildArgs a when a.CommandName == Constants.Commands.Build:           // example run file.rst
-                        return new BuildCommand(a).Run(); 
-
-                    case Args.DecompileArgs a when a.CommandName == Constants.Commands.Decompile:   // example version
-                        return new DecompileCommand(a).Run(); 
-                                                                                                // Root command and top level arguments
-                    case Args.RootArgs a when a.CommandName == null ||                          // example 
-                        new Regex(Constants.Args.VersionRgx).IsMatch(args[0]) ||                // example --version || example -v
-                        new Regex(Constants.Args.HelpRgx).IsMatch(args[0]):                     // example --help || example -h
-                            return new RootCommand(a).Run();
-
-                    default:
-                        Console.Error.WriteLine($"Unrecognised args: '{String.Join("', '",args)}'");
-                        return 1;
-                }
+                commandLineBuilder.AddCommand(command);
             }
-            catch (Exception)
-            {
-                return 1;
-            }
+
+            return commandLineBuilder.Build();
+        }
+
+        private ILoggerProvider GetLoggerProvider()
+        {
+            return new ExampleLoggerProvider(new ExampleLoggerOptions(true, ConsoleColor.Red, ConsoleColor.DarkYellow, this.runContext.ErrorWriter));
+        }
+
+        private ServiceProvider ConfigureServices()
+        {
+            return new ServiceCollection()
+                .AddCliCommandConfig()
+                .AddCliCommands()
+                .BuildServiceProvider();
         }
     }
 }

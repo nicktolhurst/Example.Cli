@@ -1,28 +1,41 @@
-using System;
-using Example.Cli.Args;
+using System.CommandLine;
+using System.Linq;
 
-namespace Example.Cli.Commands
+using Example.Cli.Handlers;
+using Example.Cli.Helpers;
+using Example.Cli.Config;
+
+namespace Example.Cli.Commands 
 {
-    public class BuildCommand : CommandBase
+    public class BuildCommand : Command
     {
-        private readonly BuildArgs _args;
-        public BuildCommand(BuildArgs args) : base(args)
+        public BuildCommand(BuildConfig config) : base(config.CommandName, config.DescriptionText)
         {
-            _args = args;
-        }
+            this.AddSymbolsFromConfig(config)
+                .HandleWith<BuildCommandHandler>()
+                .ValidateWith(r => 
+                {
+                    var outdir = r.Children.Contains(config.OutputDirectory.Aliases.First());
+                    var stdout = r.Children.Contains(config.Stdout.Aliases.First());
+                    var outfile = r.Children.Contains(config.OutputFile.Aliases.First()); 
 
-        protected override int ToFile(string path)
-        {
-            Console.WriteLine($"\n To file logic... \n\tPATH: {path}");
+                    if (outdir && stdout)
+                    {
+                        return $"Options '--output-dir' and '--stdout' cannot be used together.";
+                    }
 
-            return 0;
-        }
+                    if (outdir && outfile)
+                    {
+                        return $"Options '--output-dir' and '--output-file' cannot be used together.";
+                    }
 
-        protected override int ToStdout()
-        {
-            Console.WriteLine($"\n To stdout logic... \n\t ......");
+                    if (stdout && outfile)
+                    {
+                        return $"Options '--stdout' and '--output-file' cannot be used together.";
+                    }
 
-            return 0;
-        }
+                    return null;
+                });
+        } 
     }
 }
